@@ -4,7 +4,7 @@ Una red social abierta para comunidades que desean fomentar la interacción entr
 
 > **Estado del proyecto:** este repositorio contiene actualmente un prototipo no funcional en desarrollo.
 
-## Estado actual
+## Estado actual Hola
 
 - El frontend conserva la plantilla inicial de Vite y React.
 - El backend es una aplicación Express que expone `GET /health`.
