@@ -1,12 +1,12 @@
 {
-  "id": "0564e2be-c93e-4e2d-a8f9-cb25e2bb30f2",
+  "id": "8215b4f4-9fc2-41f8-a89b-236de90f60ff",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.account": {
+    "auth.account": {
       "name": "account",
-      "schema": "",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -112,6 +112,7 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
+          "schemaTo": "auth",
           "columnsFrom": [
             "user_id"
           ],
@@ -193,6 +194,7 @@
           "name": "profile_user_id_user_id_fk",
           "tableFrom": "profile",
           "tableTo": "user",
+          "schemaTo": "auth",
           "columnsFrom": [
             "user_id"
           ],
@@ -224,9 +226,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.session": {
+    "auth.session": {
       "name": "session",
-      "schema": "",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -302,6 +304,7 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
+          "schemaTo": "auth",
           "columnsFrom": [
             "user_id"
           ],
@@ -326,9 +329,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.user": {
+    "auth.user": {
       "name": "user",
-      "schema": "",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -365,7 +368,7 @@
         "role": {
           "name": "role",
           "type": "role",
-          "typeSchema": "public",
+          "typeSchema": "auth",
           "primaryKey": false,
           "notNull": true,
           "default": "'user'"
@@ -401,9 +404,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.verification": {
+    "auth.verification": {
       "name": "verification",
-      "schema": "",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -471,20 +474,47 @@
     }
   },
   "enums": {
-    "public.role": {
+    "auth.role": {
       "name": "role",
-      "schema": "public",
+      "schema": "auth",
       "values": [
         "user",
         "owner"
       ]
     }
   },
-  "schemas": {},
+  "schemas": {
+    "auth": "auth"
+  },
   "sequences": {},
   "roles": {},
   "policies": {},
-  "views": {},
+  "views": {
+    "public.user_role": {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "role": {
+          "name": "role",
+          "type": "role",
+          "typeSchema": "auth",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'user'"
+        }
+      },
+      "definition": "select \"id\", \"role\" from \"auth\".\"user\"",
+      "name": "user_role",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": false
+    }
+  },
   "_meta": {
     "columns": {},
     "schemas": {},
