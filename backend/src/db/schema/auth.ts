@@ -1,13 +1,16 @@
 // Define las 4 tablas núcleo que requiere Better Auth (user, session, account,
 // verification) más la tabla `profile` con los datos públicos del usuario.
 
-import {pgTable, pgEnum, uuid ,text, boolean, timestamp, unique, index} from "drizzle-orm/pg-core";
+import {pgTable, pgEnum, uuid ,text, boolean, timestamp, unique, index, pgSchema, pgView} from "drizzle-orm/pg-core";
+
+// Esquema de Postgres donde se crean las tablas.
+export const authSchema = pgSchema("auth"); 
 
 // Tipo ENUM nativo de Postgres. Restringe la columna `role` a solo estos dos
-export const roleEnum = pgEnum("role", ["user", "owner"]);
+export const roleEnum = authSchema.enum("role", ["user", "owner"]);
 
 // Tabla: user
-export const user = pgTable("user", {
+export const user = authSchema.table("user", {
   id: uuid("id").primaryKey().defaultRandom(),  // UUID generado automáticamente por Postgres
   name: text("name").notNull(),
   email: text("email").notNull().unique(),//Obligatorio y único: no puede haber dos usuarios con el mismo correo.
@@ -33,7 +36,7 @@ export const profile = pgTable("profile", {
 });
 
 // Tabla: session
-export const session = pgTable("session", {
+export const session = authSchema.table("session", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => user.id, {onDelete: "cascade"}), // Llave foránea hacia user.id.
   token: text("token").notNull().unique(), // Token único que identifica la sesión
@@ -51,7 +54,7 @@ export const session = pgTable("session", {
 // Tabla: account
 // Representa un método de autenticación vinculado a un usuario
 // puede ser credenciales (email+password) o un proveedor OAuth (Google, GitHub, etc)
-export const account = pgTable("account", {
+export const account = authSchema.table("account", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => user.id, {onDelete: "cascade"}),
   accountId: text("account_id").notNull(), // Identificador de la cuenta dado por el proveedor
@@ -76,7 +79,7 @@ export const account = pgTable("account", {
  
 // Tabla: verification
 // Guarda tokens/códigos temporales usadoscpara verificar un email o resetear una contraseña
-export const verification = pgTable("verification", {
+export const verification = authSchema.table("verification", {
   id: uuid("id").primaryKey().defaultRandom(),
   identifier: text("identifier").notNull(),  // Qué se está verificando
   value: text("value").notNull(),  // El valor a verificar
@@ -86,3 +89,13 @@ export const verification = pgTable("verification", {
 },(t) => ({
   identifierIndex: index("verification_identifier_idx").on(t.identifier),
 }));
+
+// Vista: public.user_role
+// Vista de solo lectura sobre auth.user, para pueda consultar el rol de un usuario sin tocar el schema de Better Auth.
+
+export const userRoleView = pgView("user_role").as((qb) => {
+  return qb.select({
+    id: user.id,
+    role: user.role,
+  }).from(user);   
+});
