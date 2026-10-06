@@ -12,6 +12,7 @@ export const auth = betterAuth({
       session,
       verification,
     },
+    schemaName: "auth", // Nombre del esquema de Postgres donde se crean las tablas de Better Auth  
   }),
 
   emailAndPassword: {
